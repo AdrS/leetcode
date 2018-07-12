@@ -1,15 +1,15 @@
 #include <algorithm>
 #include <cassert>
 #include <climits>
+#include <cstdlib>
 #include <iostream>
 #include <numeric>
 #include <vector>
 
 using namespace std;
 
-/*
 // Dynamic programming solution
-int jump(vector<int>& nums) {
+int jump1(vector<int>& nums) {
 	// numJumps[i] = minimum number of jumps to get to position i
 	vector<int> numJumps(nums.size(), INT_MAX);
 	numJumps[0] = 0;
@@ -32,7 +32,7 @@ int jump(vector<int>& nums) {
 		}
 	}
 	return numJumps.back();
-} */
+}
 
 int jump(vector<int>& nums) {
 	// TODO: see if I can get rid of some of these
@@ -50,6 +50,11 @@ int jump(vector<int>& nums) {
 	// Mark endpoint of range from first num
 	numJumps[nums[0]] = 1;
 
+	// Index of marker farthest to right with numJumps = nj
+	int furthestMarker = nums[0];
+	// What furthestMarker will be after next jump
+	int nextFarMark = -1;
+
 	// Minimum number of jumps we definitely have to take
 	int nj = 1;
 	// Invariant: numJumps[j] = minimum number of jumps
@@ -62,22 +67,34 @@ int jump(vector<int>& nums) {
 	for(int i = 1; i < nums.size(); ++i) {
 		assert(numJumps[i - 1] <= nj);
 		assert(nj <= numJumps[i]);
+		assert(numJumps[furthestMarker] == nj);
+		assert(nextFarMark == -1 || numJumps[nextFarMark] == nj + 1);
+
+		// furthest location we could jump from nums[i]
+		int maxJump = i + nums[i];
 
 		// See if end is within range now
-		if(i + nums[i] >= nums.size() - 1) {
+		if(maxJump >= nums.size() - 1) {
 			return nj + 1;
 		}
 
 		// Mark upper end of range of numbers we can jump to from here
 		// Don't overwrite markers for shorter route
-		if(numJumps[i + nums[i]] == INT_MAX) {
-			numJumps[i + nums[i]] = nj + 1;
+		if(numJumps[maxJump] == INT_MAX) {
+			numJumps[maxJump] = nj + 1;
+			if(maxJump > nextFarMark) {
+				nextFarMark = maxJump;
+			}
 		}
 
 		// We found the marker for the end of a jump range
-		if(numJumps[i] == nj) {
+		// Problem: there could be multiple markers
+		// Solution: keep track of farthest right marker
+		if(i == furthestMarker) {
 			// Looks like we have to take another jump
 			nj++;
+			furthestMarker = nextFarMark;
+			nextFarMark = -1;
 		} else {
 			// nums[i] is within range of on of the previous
 			// numbers
@@ -136,7 +153,18 @@ void runTestCase(vector<int> &nums, int expected) {
 	}
 }
 
+void runRandomTest() {
+	int size = 1 + (rand() % 50);
+	vector<int> nums;
+	for(int i = 0; i < size; ++i) {
+		nums.push_back(rand() % 55 + 1);
+	}
+	int expected = jump1(nums);
+	runTestCase(nums, expected);
+}
+
 int main() {
+	srand(1996);
 	vector<TestCase> testCases = {
 		{{2,3,1,1,4}, 2},
 		{{4,3,1,1,4}, 1},
@@ -153,6 +181,10 @@ int main() {
 
 	for(auto &testCase : testCases) {
 		runTestCase(testCase.nums, testCase.expected);
+	}
+
+	for(int i = 0; i < 2000; ++i) {
+		runRandomTest();
 	}
 	return 0;
 }
