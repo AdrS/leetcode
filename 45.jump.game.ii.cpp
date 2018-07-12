@@ -10,6 +10,7 @@ using namespace std;
 
 // Dynamic programming solution
 int jump1(vector<int>& nums) {
+	// O(n^2)
 	// numJumps[i] = minimum number of jumps to get to position i
 	vector<int> numJumps(nums.size(), INT_MAX);
 	numJumps[0] = 0;
