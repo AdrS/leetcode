@@ -1,11 +1,13 @@
 #include <algorithm>
 #include <iostream>
 #include <vector>
+#include <climits>
 
 using namespace std;
 
 class Solution {
 public:
+	/*
     int findLongestChain(vector<vector<int>>& pairs) {
         if(pairs.empty()) return 0;
 
@@ -39,6 +41,24 @@ public:
             }
         }
         return best;
+    }
+	*/
+    int findLongestChain(vector<vector<int>>& pairs) {
+        sort(pairs.begin(), pairs.end(), [](const vector<int> &a, const vector<int> &b) {
+                return a[1] < b[1];
+        });
+        // OPT(i) = length of longest chain using up to the first i pairs
+        // OPT(0) = 1
+        // OPT(i) = OPT(i - 1) if pair i overlaps with end of previous best chain
+		//			OPT(i + 1) if pair i does not overlap
+		int count = 0, end = INT_MIN;
+		for(auto &pair : pairs) {
+			if(pair[0] > end) {
+				end = pair[1];
+				++count;
+			}
+		}
+		return count;
     }
 };
 
