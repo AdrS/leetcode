@@ -27,7 +27,9 @@ public:
         traverse(root, results);
         return results;
     }
-};*/
+};
+// 80 ms
+*/
 class Solution {
 public:
     vector<int> postorder(Node* root) {
@@ -50,7 +52,7 @@ public:
         return results;
     }
 };
-// 80 ms
+// 48 ms
 
 /* 32 ms
 public:
